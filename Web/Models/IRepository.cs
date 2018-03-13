@@ -1,4 +1,6 @@
-﻿namespace Web.Models
+﻿using System.Collections.Generic;
+
+namespace Web.Models
 {
     public interface IRepository
     {

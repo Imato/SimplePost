@@ -7,7 +7,7 @@ namespace Web.Models
 {
     public class Author
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string AuthorIP { get; set; }
     }

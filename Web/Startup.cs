@@ -1,19 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Web.Models;
+using Web.Services;
 
 namespace Web
 {
     public class Startup
     {
+        private SiteConfiguration _siteConfig;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+
+            Configuration = builder.Build();
+            _siteConfig = new SiteConfiguration();
+            Configuration.GetSection("SiteConfiguration").Bind(_siteConfig);
         }
 
         public IConfiguration Configuration { get; }
@@ -22,11 +29,12 @@ namespace Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            
+            services.AddSingleton<IRepository, LiteDbRepository>();
+            services.AddSingleton<IConfigurationService, ConfigurationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IConfigurationService configurationService)
         {
             if (env.IsDevelopment())
             {
@@ -41,6 +49,8 @@ namespace Web
             app.UseStaticFiles();
 
             app.UseMvc();
+
+            configurationService.SetConfiguration(_siteConfig);
         }
     }
 }
